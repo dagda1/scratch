@@ -1,36 +1,39 @@
 (ns scratch.core)
 
-(def more-legs #{[8 4] [9 3] [4 2] [27 9]})
+(def x #{["cat" "man"] ["man" "snake"] ["spider" "cat"]})
 
-(letfn [(f [x]  (reduce (fn [acc curr]
-                          (concat acc (reduce (fn [a1 parent]
-                                                (let [sibling (first (filter #(not= parent %) curr))
-                                                      res (filter #(not= curr %) x)]
-                                                  (concat a1 (reduce (fn [a2 c]
-                                        ;(prn "c:= " c " parent:= " parent " sibling:= " sibling)
-                                        ;(prn (str "a2:=" a2))
-                                                                       (let [candidate [parent (first (filter #(not= sibling %) c))]]
-                                                                         (if (and (some #(= sibling %) c) (not (some #(= (set %) (set candidate) ) acc)) )
-                                                                           (conj a2 candidate)
-                                                                           a2))
-                                                                       )
-                                                                     [] res))
-                                                  )
-                                                )
-                                              [] curr))
-                          ) [] x))]
-  (let [o (concat (f more-legs) more-legs)
-        y (set (concat o (f o) o))]
-    y
-    )
+
+(letfn [(trans [whole l acc]
+          (let [f (first l)]
+            (prn "=================")
+            (prn "***********")
+            (prn (str "f=" f))
+            (prn whole)
+            (prn "***********")
+            (let [rels (reduce (fn [a c]
+                                 (prn "--------------")
+                                 (prn "f:=" f)
+                                 (prn "c:=" c)
+                                 (prn "--------------")
+                                 (if (= (first f) (last c))
+                                   (conj a [(first c) (last f)])
+                                   a
+                                   )
+                                 )
+                               [] whole)]
+              (prn (str "rels:=" rels))
+              (prn "=================")
+              (if (empty? l)
+                acc
+                (recur (concat rels whole) (concat rels (rest l)) (concat whole rels acc))
+                )
+              )
+            )
+          )
+        ]
+  (set (trans x x []))
   )
 
-;; #{
-;;   ["cat" "snake"]
-;;   ["spider" "man"]
-;;   ["spider" "snake"]
 
-;;   ["cat" "man"]
-;;   ["man" "snake"]
-;;   ["spider" "cat"]
-;; }
+
+
