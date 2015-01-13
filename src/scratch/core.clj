@@ -1,36 +1,37 @@
 (ns scratch.core)
 
-(def s #{1 :e})
+((fn [chain]
+   (letfn [(permutations [s]
+              (lazy-seq
+               (if (seq (next s))
+                 (apply concat (for [x s]
+                                 (map #(cons x %) (permutations (remove #{x} s)))))
+                 [s])))
+           (find-match [left right]
+             (prn left)
+             (prn right)
+             (first (for [x left y right :when (= x y)] y)))
+           (can-tour? [s]
+             (loop [[x & xs] s]
+               (if (empty? xs)
+                 true
+                 (if-let [m (find-match x (first xs))]
+                   (let [updated (assoc (vec s) (.indexOf s x) (with-meta x (assoc (meta x) m :visited )))]
+                     (prn (meta (first updated)))
+                     )
+                   (prn "not found")
+                   )
+                 )
+               ))]
+     (if (= (count chain) 0)
+       true
+       (loop [perms (permutations chain)]
+         (if (empty? perms)
+           false
+           (if (can-tour? (map #(with-meta % (zipmap % [:free :free])) (first perms)))
+             true
+             false
+             ;(recur (rest perms))
+             )))))
+   ) [[1 2] [2 3] [3 4] [4 1]])
 
-((fn [coll]
-   (letfn [(f [curr x acc]
-             (let [n (conj acc [curr])
-                   e (concat n (map #(conj % curr) acc))]
-               (if-not (first x)
-                 e
-                 (recur (first x) (rest x) e))))]
-     (if (empty? coll)
-       #{}
-       (let [result (set (f (first coll) (sort (rest coll)) []))]
-         (set (map set (conj result []))))))) s)
-
-;; (1)
-;; (2 3 4)
-;; [
-;;  []
-;;  [1]
-;;  [2]
-;;  [1 2]
-;;  [3]
-;;  [1 3]
-;;  [2 3]
-;;  [1 2 3]
-;;  [4]
-;;  [1 4]
-;;  [2 4]
-;;  [1 2 4]
-;;  [3 4]
-;;  [1 3 4]
-;;  [2 3 4]
-;;  [1 2 3 4]
-;;  ]
