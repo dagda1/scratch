@@ -1,32 +1,34 @@
 (ns scratch.core)
 
-(def graph #{[:a :b] [:b :c] [:c :d]
-               [:x :y] [:d :a] [:b :e]} )
+(def g #{[:a :b] [:b :c] [:c :d]
+              [:x :y] [:d :a] [:b :e] [:x :a]})
 
 ((fn [g]
-   (letfn [
-    (connected? [e]
-      (prn (count e))
-      (prn e)
-      (if (>= 1 (count e))
-        true
-        (let [
-              v1  (ffirst e)
-              ; incoming neighbours
-              in  (for [ei e :when (= v1 (second ei))] (first  ei))
-              ; outgoing neigbours
-              out (for [ei e :when (= v1 (first  ei))] (second ei))
-              e1  (filter #(not= % v1) (concat in out))]
-          (prn "=======")
-          (prn v1)
-          (prn in)
-          (prn out)
-          (prn (concat in out))
-          (prn e1)
-          (prn "=======")
-          (if (empty? e1)
-            false
-            (recur (remove #(some #{v1} %) e))))))
-    ]
-    (connected? g))
-   )graph)
+   (letfn [(connected? [g]
+             (loop [q (conj [] (ffirst g)) visited #{}]
+               (if (empty? q)
+                 (let [rem (filter #(not (% visited)) (flatten (for [e g] e)))]
+                   (prn rem)
+                   (= 0 (count rem)))
+                 (let [v1 (peek q)
+                       edges (filter (partial some #{v1}) g)
+                       vertices (filter (partial not= v1) (flatten edges))
+                       unvisited (filter #(not (% visited)) vertices)
+                       ]
+                   (prn "===========")
+                   (prn v1)
+                   (prn q)
+                   (prn edges)
+                   (prn vertices)
+                   (prn visited)
+                   (prn unvisited)
+                   (prn "===========")
+                   (recur (into (rest q) unvisited) (into (conj visited v1) unvisited))
+                   ))
+               )
+             )
+           ]
+     (if (= (count g) 0)
+       true
+      (connected? g)))
+   ) g )
