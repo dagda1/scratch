@@ -1,17 +1,20 @@
-(ns scratch.core)
+(ns scratch.core
+  (require [clojure.string :as str :only (split-lines join)]))
 
-((fn [nms]
-   (let [nm {\I 1 \V 5 \X 10 \C 100 \D 500 \M 1000}
-         red {"IV" 4 "IX" 9 "XL" 40 "XC" 90 "CD" 400 "CM" 900}
-         ]
-     (letfn [(parse [[x & xs] acc]
-              (if (empty? xs)
-                (if-let [final (nm x)]
-                  (+ acc (nm x))
-                  acc)
-                (if-let [comb (red (str x (first xs)))]
-                  (recur (rest xs) (+ acc comb))
-                  (recur xs (+ acc (nm x))))))]
-      (parse nms 0)))
+(def t "2\n3\n6")
 
-   ) "XIV" )
+(defn work [input]
+  (let [lines (map read-string (str/split-lines input))]
+    (letfn [(is-prime? [n]
+              (empty? (filter #(= 0 (mod n  %)) (range 2 n))))
+            (parse-primes [[x & xs]]
+              (prn (last (take x (filter #(is-prime? %) (iterate inc 2)))))
+              (if (seq xs)
+                (recur xs)))]
+       (parse-primes (rest lines)))))
+
+(work t)
+;(work (slurp *in*))
+; triangle (take-last (- (count sample) 2) sample)
+; (take 3 (iterate #(+ 2 %) 1))
+
