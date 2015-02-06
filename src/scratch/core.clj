@@ -1,20 +1,14 @@
 (ns scratch.core
   (require [clojure.string :as str :only (split-lines join)]))
 
-(def t "2\n3\n6")
+(defn is-prime? [n]
+  (empty? (filter #(= 0 (mod n  %)) (range 2 n))))
 
-(defn work [input]
-  (let [lines (map read-string (str/split-lines input))]
-    (letfn [(is-prime? [n]
-              (empty? (filter #(= 0 (mod n  %)) (range 2 n))))
-            (parse-primes [[x & xs]]
-              (prn (last (take x (filter #(is-prime? %) (iterate inc 2)))))
-              (if (seq xs)
-                (recur xs)))]
-       (parse-primes (rest lines)))))
+(defn nth-prime [n]
+  (last (take n (filter #(is-prime? %) (iterate inc 2)))))
 
-(work t)
+(let [input "2\n3\n6"
+      ranks (rest (map read-string (str/split-lines input)))
+      primes (map nth-prime ranks)]
+  (map prn primes))
 ;(work (slurp *in*))
-; triangle (take-last (- (count sample) 2) sample)
-; (take 3 (iterate #(+ 2 %) 1))
-
