@@ -2,20 +2,32 @@
   (require [clojure.string :as str :only (split-lines join)]))
 
 (defn is-prime? [n]
-  (or (= 2 n)
-   (not-any? #(= 0 (mod n %)) (cons 2 (range 3 (inc (Math/sqrt n)) 2)))))
+  (if (= n 2)
+    true
+    (if (even? n) false
+       (let [root (Math/floor (int (Math/sqrt n)))]
+         (loop [i 3]
+           (if (> i root) true
+               (if (= 0 (mod n i)) false
+                   (recur (+ i 2)))))))))
+
+(defn n-primes [n]
+  (loop [curr 3 acc [2]]
+    (if (= (count acc) n)
+      acc
+      (recur (+ 2 curr) (if (is-prime? curr)
+                          (conj acc curr)
+                          acc)))))
 
 (defn nth-prime [n]
-  (last (take n (filter #(is-prime? %) (cons 2 (iterate (partial + 2) 3))))))
+  (last (n-primes n)))
 
 (defn print-primes [[x & xs]]
   (prn x)
   (if (seq xs)
     (recur xs)))
 
-
-(let [input "2\n3\n6"
+(let [input "1\n10001"
       ranks (rest (map read-string (str/split-lines input)))
       primes (map nth-prime ranks)]
-  (print-primes primes))
-;(work (slurp *in*))
+  (time (print-primes  primes)))  ; Elapsed time: 211.82
