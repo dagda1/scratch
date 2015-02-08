@@ -1,21 +1,26 @@
 (ns scratch.core
   (require [clojure.string :as str :only (split-lines join)]))
 
-(defn is-prime? [n]
+(defn is-prime? [n primes]
+  (prn (str "n = " n))
   (if (= n 2)
     true
-    (if (even? n) false
-       (let [root (Math/floor (int (Math/sqrt n)))]
-         (loop [i 3]
-           (if (> i root) true
-               (if (= 0 (mod n i)) false
-                   (recur (+ i 2)))))))))
+    (let [root (Math/floor (int (Math/sqrt n)))]
+      (loop [[x & xs] primes]
+        (prn x)
+        (if (= 0 (mod n x))
+            false
+            (if (seq xs)
+              (recur xs)
+              true))))))
+
+(def mem-is-prime? (memoize is-prime?))
 
 (defn n-primes [n]
   (loop [curr 3 acc [2]]
     (if (= (count acc) n)
       acc
-      (recur (+ 2 curr) (if (is-prime? curr)
+      (recur (+ 2 curr) (if (mem-is-prime? curr acc)
                           (conj acc curr)
                           acc)))))
 
@@ -27,7 +32,7 @@
   (if (seq xs)
     (recur xs)))
 
-(let [input "1\n10001"
+(let [input "1\n101"
       ranks (rest (map read-string (str/split-lines input)))
       primes (map nth-prime ranks)]
-  (time (print-primes  primes)))  ; Elapsed time: 211.82
+  (time (print-primes  primes)))
