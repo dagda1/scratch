@@ -1,25 +1,30 @@
 (ns scratch.core
   (require [clojure.string :as str :only (split-lines join)]))
 
-(defn is-prime? [n]
-  (if (= n 2)
-    true
-    (let [root (Math/floor (int (Math/sqrt n)))]
-      (loop [i 3]
-        (if (> i root) true
-            (if (= 0 (mod n i)) false
-                (recur (+ i 2))))))))
+(defn calc-limit [n]
+  (let [log (Math/log n)
+        loglog (Math/log log)
+        logsum (+ log loglog)]
+    (-> n (* logsum) int (+ 3))))
 
-(defn n-primes [n]
-  (loop [curr 3 acc [2]]
-    (if (= (count acc) n)
-      acc
-      (recur (+ 2 curr) (if (is-prime? curr)
-                          (conj acc curr)
-                          acc)))))
+(defn primes [n]
+  (let [root (-> n (Math/sqrt) inc int)
+        sieve (boolean-array n true)]
+    (loop [i 2]
+      (when (< i (Math/sqrt n))
+        (when (aget sieve i)
+          (loop [j (* i 2)]
+            (when (< j n)
+              (aset sieve j false)
+              (recur (+ j i)))))
+        (recur (inc i))))
+    (filter #(aget sieve %) (range 2 n))))
 
 (defn nth-prime [n]
-  (last (n-primes n)))
+  (cond
+    (= n 1) 2
+    (= n 2) 3
+    :else (last (take n (primes (calc-limit n))))))
 
 (defn print-primes [[x & xs]]
   (prn x)
@@ -30,4 +35,4 @@
 (let [input "1\n10001"
       ranks (rest (map read-string (str/split-lines input)))
       primes (map nth-prime ranks)]
-  (time (print-primes  primes)))  ; Elapsed time: 178.132
+  (time (print-primes  primes)))  ; Elapsed time: 52.271 msecs
