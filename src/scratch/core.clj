@@ -1,17 +1,19 @@
-(ns scratch.core)
+(ns scratch.core
+  (require [clojure.string :as str :only (split-lines join split)]))
 
-((fn [nms]
-   (let [nm {\I 1 \V 5 \X 10 \C 100 \D 500 \M 1000}
-         red {"IV" 4 "IX" 9 "XL" 40 "XC" 90 "CD" 400 "CM" 900}
-         ]
-     (letfn [(parse [[x & xs] acc]
-              (if (empty? xs)
-                (if-let [final (nm x)]
-                  (+ acc (nm x))
-                  acc)
-                (if-let [comb (red (str x (first xs)))]
-                  (recur (rest xs) (+ acc comb))
-                  (recur xs (+ acc (nm x))))))]
-      (parse nms 0)))
+(defn numberify [str]
+  (vec (vec (map read-string (str/split str #" ")))))
 
-   ) "XIV" )
+(defn process [coll]
+  )
+
+(defn print-result [[x & xs]]
+  (prn x)
+  (if (seq xs)
+    (recur xs)))
+
+(let [input "3\n11 2 4\n4 5 6\n10 8 -12\n"
+      inputs (str/split-lines input)
+      rows (vec (map #(numberify %) (rest inputs)))
+      ]
+  (prn (process rows)))
