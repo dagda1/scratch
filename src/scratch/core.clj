@@ -1,19 +1,31 @@
 (ns scratch.core
   (require [clojure.string :as str :only (split-lines join split)]))
 
-(defn numberify [str]
-  (vec (vec (map read-string (str/split str #" ")))))
+(defn ascii [char]
+  (int (.charAt (str char) 0)))
 
-(defn process [coll]
-  )
+(defn process [text]
+  (let [parts (split-at (int (Math/floor (/ (count text) 2))) text)
+        left (first parts)
+        right (if (> (count (last parts)) (count (first parts)))
+                (rest (last parts))
+                (last parts))]
+    (reduce (fn [acc i]
+              (let [a (ascii (nth left i))
+                    b (ascii (nth (reverse right) i))]
+                (if (> a b)
+                  (+ acc (- a b))
+                  (+ acc (- b a))))
+              ) 0 (range (count left)))))
 
 (defn print-result [[x & xs]]
   (prn x)
   (if (seq xs)
     (recur xs)))
 
-(let [input "3\n11 2 4\n4 5 6\n10 8 -12\n"
+; (slurp "/Users/paulcowan/Downloads/input10.txt")
+(let [input (slurp "/Users/paulcowan/Downloads/input10.txt")
       inputs (str/split-lines input)
-      rows (vec (map #(numberify %) (rest inputs)))
-      ]
-  (prn (process rows)))
+      length (read-string (first inputs))
+      texts (rest inputs)]
+  (time (print-result (map process texts))))
