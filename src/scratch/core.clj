@@ -1,31 +1,33 @@
 (ns scratch.core
   (require [clojure.string :as str :only (split-lines join split)]))
 
-(defn ascii [char]
-  (int (.charAt (str char) 0)))
+(defn numberify [str]
+  (vec (map read-string (str/split str #" "))))
 
-(defn process [text]
-  (let [parts (split-at (int (Math/floor (/ (count text) 2))) text)
-        left (first parts)
-        right (if (> (count (last parts)) (count (first parts)))
-                (rest (last parts))
-                (last parts))]
-    (reduce (fn [acc i]
-              (let [a (ascii (nth left i))
-                    b (ascii (nth (reverse right) i))]
-                (if (> a b)
-                  (+ acc (- a b))
-                  (+ acc (- b a))))
-              ) 0 (range (count left)))))
+(defn process [[cash amount wrappers]]
+  (let [bought (int (Math/floor (/ cash amount)))
+        free (int (Math/floor (/ bought wrappers)))
+        remaining (rem bought wrappers)
+        total (int (Math/floor (+ bought free)))
+        next (int (Math/floor (/ (+ free remaining) wrappers)))]
+
+    (prn "==========")
+    (prn (str "bought " bought))
+    (prn (str "free " (rem bought wrappers)))
+    (prn (str "total " total))
+    (prn (str "wrappers " wrappers))
+    (prn (str "next " next))
+    (prn "==========")
+    (+ next total)))
 
 (defn print-result [[x & xs]]
   (prn x)
   (if (seq xs)
     (recur xs)))
 
-; (slurp "/Users/paulcowan/Downloads/input10.txt")
-(let [input (slurp "/Users/paulcowan/Downloads/input10.txt")
-      inputs (str/split-lines input)
-      length (read-string (first inputs))
-      texts (rest inputs)]
-  (time (print-result (map process texts))))
+(let [input "1\n43203 60 5"
+      lines (str/split-lines input)
+      length (read-string (first lines))
+      inputs (map numberify (rest lines))]
+  (print-result (map process inputs)))
+; "1\n43203 60 5" => 899
