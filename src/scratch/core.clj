@@ -4,27 +4,14 @@
 (defn numberify [str]
   (vec (map read-string (str/split str #" "))))
 
-(defn trade [acc bought wrappers]
-  (let [traded (int (Math/floor (/ bought wrappers)))
-        remainder (if (= 0 traded)
-                    0
-                    (- bought (* traded wrappers)))
-        result (+ traded remainder)]
-    (if (< result wrappers)
-      (+ acc traded)
-      (trade (+ acc traded) result wrappers))))
+(defn process [curr prev next num]
+  (cond
+    (= curr num) (+ prev next)
+    (< curr 2) (process (inc curr) prev next num)
+    (= 2 curr) (process (inc curr) 0 1 num)
+    :else (process (inc curr) next (+ prev next) num)))
 
-(defn process [[cash amount wrappers]]
-  (let [bought (int (Math/floor (/ cash amount)))]
-    (trade bought bought wrappers)))
-
-(defn print-result [[x & xs]]
-  (prn x)
-  (if (seq xs)
-    (recur xs)))
-
-(let [input "3\n10 2 5\n12 4 4\n6 2 2"
+(let [input "1 5"
       lines (str/split-lines input)
-      length (read-string (first lines))
-      inputs (map numberify (rest lines))]
-  (print-result (map process inputs)))
+      lst (map read-string lines)]
+  (process 0 0 0 (first lst)))
