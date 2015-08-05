@@ -4,14 +4,37 @@
 (defn numberify [str]
   (vec (map read-string (str/split str #" "))))
 
-(defn process [curr prev next num]
-  (cond
-    (= curr num) (+ prev next)
-    (< curr 2) (process (inc curr) prev next num)
-    (= 2 curr) (process (inc curr) 0 1 num)
-    :else (process (inc curr) next (+ prev next) num)))
+(defrecord TreeNode [val left right])
 
-(let [input "1 5"
+(defn build-tree [[l r] rst node]
+  (let [left (if (= - 1 l) nil l)
+        right (if (= -1 r) nil r)]
+    
+    )
+  )
+
+
+; (assoc node :left (make-tree left))
+
+
+;                  1
+;                 / \
+;                2   3
+;               /    /
+;              4    5
+;             /    /
+;            /    /\
+;           6    7  8
+;           \      / \
+;            9    10 11
+;
+; x =  [2 3]
+; xs = 
+(let [input "11\n2 3\n4 -1\n5 -2\n6 -1\n7 8\n-1 9\n-1 -1\n10 11\n-1 -1\n-1 -1\n-1 -1"
       lines (str/split-lines input)
-      lst (map read-string lines)]
-  (process 0 0 0 (first lst)))
+      tl (read-string (first lines))
+      tree-lines (map numberify (drop 1 (take (inc tl) lines)))
+      [x & xs] tree-lines
+      ]
+  (build-tree x xs (TreeNode. 1 nil nil))
+  )
