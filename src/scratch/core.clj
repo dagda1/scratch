@@ -6,19 +6,35 @@
 
 (defrecord TreeNode [val left right])
 
+(defn tree-map [idx itm]
+  (let [side (if (= 0 idx) :left :right)]
+    {:side side :index idx :val itm}))
+
 (defn append-to-tree [node x]
   (reduce (fn [t b]
             (let [index (if (= b :left) 0 1)
                   val (nth x index)]
               (if-not (= val -1)
                 (assoc t b (TreeNode. val nil nil))
-                t
-                ))
+                t))
             ) node [:left :right]))
 
-(defn build-tree [node curr rst depth]
-  (let [t (append-to-tree node)])
-  )
+(defn build-tree [node xs]
+  (let [counter (atom 1)]
+    (reduce (fn [t x]
+              (reduce (fn [n l]
+                        (if-not (= (:val l) -1)
+                          (let [next-branch (nth xs @counter)
+                                ]
+                            (swap! counter inc)
+                            (prn "===============")
+                            (prn l)
+                            (prn next-branch)
+                            (prn "===============")
+                            )
+                          n
+                          )
+                       )t (map-indexed tree-map x))) node xs)))
 
 ; process [2, 3]
 ; pop 2 on stack
@@ -57,5 +73,4 @@
       lines (str/split-lines input)
       tl (read-string (first lines))
       tree-lines (map numberify (drop 1 (take (inc tl) lines)))
-      tree (build-tree (TreeNode. 1 nil nil) (first tree-lines) (rest tree-lines) 1)]
-  (prn tree))
+      tree (build-tree (TreeNode. 1 nil nil) tree-lines)])
