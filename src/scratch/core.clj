@@ -8,7 +8,7 @@
 
 (defn tree-map [idx itm]
   (let [side (if (= 0 idx) :left :right)]
-    {:side side :index idx :val itm}))
+    {:val itm :side side :index idx}))
 
 (defn append-to-tree [node x]
   (reduce (fn [t b]
@@ -19,22 +19,26 @@
                 t))
             ) node [:left :right]))
 
-(defn build-tree [node xs]
-  (let [counter (atom 1)]
-    (reduce (fn [t x]
-              (reduce (fn [n l]
-                        (if-not (= (:val l) -1)
-                          (let [next-branch (nth xs @counter)
-                                ]
-                            (swap! counter inc)
-                            (prn "===============")
-                            (prn l)
-                            (prn next-branch)
-                            (prn "===============")
-                            )
-                          n
-                          )
-                       )t (map-indexed tree-map x))) node xs)))
+(defn build-tree
+  [node xs]
+  (let [process-branch (fn process-branch [[counter t'] l]
+                         (if-not (= (:val l) -1)
+                           (let [next-branch (nth xs counter)]
+                             (prn "=============")
+                             (prn l)
+                             (prn counter)
+                             (prn next-branch)
+                             (prn "=============")
+                             [(inc counter) t'])
+                           [counter t']))
+        mark-branch (fn mark-branch [x]
+                      (map-indexed tree-map x))
+        [counter tree] (reduce (fn [[counter tree] x]
+                                 (reduce process-branch
+                                         [counter tree]
+                                         (mark-branch x)))
+                               [1 node] xs)]
+    tree))
 
 ; process [2, 3]
 ; pop 2 on stack
@@ -66,9 +70,11 @@
 ;              4    5
 ;             /    /
 ;            /    /\
-;           6    7  8
-;            \     / \
-;             9   10 11
+;           /    /  \
+;           6   7    8
+;            \      / \
+;             \    /   \
+;              9  10   11
 (let [input "11\n2 3\n4 -1\n5 -1\n6 -1\n7 8\n-1 9\n-1 -1\n10 11\n-1 -1\n-1 -1\n-1 -1"
       lines (str/split-lines input)
       tl (read-string (first lines))
