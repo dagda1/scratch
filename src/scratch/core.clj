@@ -17,9 +17,13 @@
   (when-let [[l r] (get source val)]
     (TreeNode. val (build-tree l source) (build-tree r source))))
 
+(defn traverse-in-order [t]
+  (when t
+    (concat (traverse-in-order (:left t)) [(:val t)] (traverse-in-order (:right t)))))
+
 (let [input "11\n2 3\n4 -1\n5 -1\n6 -1\n7 8\n-1 9\n-1 -1\n10 11\n-1 -1\n-1 -1\n-1 -1"
       lines (str/split-lines input)
       tl (read-string (first lines))
       tree-lines (map numberify (drop 1 (take (inc tl) lines)))
       tree-source (preprocess-input tl tree-lines)]
-  (prn (build-tree 1 tree-source)))
+  (prn (traverse-in-order (build-tree 1 tree-source))))
