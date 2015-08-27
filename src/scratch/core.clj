@@ -33,4 +33,5 @@
       tree-source (preprocess-input tree-length tree-lines)
       tree (build-tree 1 tree-source)
       swap-depths (map read-string (vec (take-last (Integer/parseInt (get lines (inc tree-length))) lines)))]
+  (prn tree-lines)
   (walk-tree tree 1 2))
